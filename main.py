@@ -9,6 +9,7 @@ import aiohttp
 from aiohttp.client_exceptions import ContentTypeError
 from fastapi import FastAPI
 from starlette.exceptions import HTTPException
+from starlette.middleware.cors import CORSMiddleware
 from starlette.responses import FileResponse
 from starlette.staticfiles import StaticFiles
 
@@ -17,6 +18,13 @@ logger.setLevel("DEBUG")
 
 app = FastAPI(title="main app")
 api_app = FastAPI(title="api app")
+api_app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
 
 semaphore = asyncio.Semaphore(5)
 
