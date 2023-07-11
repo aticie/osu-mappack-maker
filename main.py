@@ -1,6 +1,6 @@
 import asyncio
 import logging
-from functools import cache
+from async_lru import alru_cache
 from pathlib import Path
 from zipfile import ZipFile, ZIP_DEFLATED
 
@@ -30,8 +30,9 @@ async def fetch_beatmapset_id_direct(beatmap_id):
 
         return resp["beatmapset_id"]
 
-@cache
+@alru_cache
 async def fetch_beatmapset_id(beatmap_id: str):
+    print(f"Fetch beatmapset id is called.")
     async with semaphore:
         beatmap_url = f"https://api.chimu.moe/v1/map/{beatmap_id}"
         print(f"Getting beatmap data: {beatmap_url}")
@@ -75,7 +76,11 @@ async def download_beatmap(beatmapset_id: int, save_folder: Path):
             async with aiohttp.ClientSession() as sess:
                 async with sess.get(url=download_url) as r2:
                     try:
-                        beatmapset = await r2.read()
+                        if r2.status == 200:
+                            beatmapset = await r2.read()
+                        else:
+                            print(f"Status code for download response was: {r2.status}")
+                            beatmapset = await download_beatmap_nerinyan(beatmapset_id)
                     except ContentTypeError as e:
                         beatmapset = await download_beatmap_nerinyan(beatmapset_id)
 
