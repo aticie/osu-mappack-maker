@@ -31,7 +31,7 @@ const download = async () => {
     const response = await axios("/api/make_pool", {
       responseType: "blob",
       params: {
-        beatmaps: idsList.value
+        beatmaps: ids.value
       },
       onDownloadProgress: ({ progress, total }) => {
         if (!progress || !total) return;
