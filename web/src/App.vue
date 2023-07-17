@@ -41,10 +41,11 @@ const download = async () => {
       },
     });
     
-    const file = window.URL.createObjectURL(response.data);
-    window.location.assign(file);
+    const file = URL.createObjectURL(response.data);
+    location.assign(file);
 
     isCollection.value = true;
+    URL.revokeObjectURL(file);
   } catch {
   } finally {
     isFetching.value = false;

@@ -36,6 +36,7 @@ const updateCollection = async () => {
     link.click();
 
     document.body.removeChild(link);
+    URL.revokeObjectURL(href);
   } catch {
 
   }
