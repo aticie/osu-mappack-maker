@@ -3,6 +3,7 @@ import BaseInput from "./ui/BaseInput.vue";
 import BaseButton from "./ui/BaseButton.vue";
 import axios from "axios";
 import { ref } from "vue";
+import { downloadWithHref } from "../download";
 
 const collectionName = ref("");
 const collectionFile = ref<File | undefined>();
@@ -19,24 +20,14 @@ const updateCollection = async () => {
     const formData = new FormData();
     formData.append("file", collectionFile.value);
 
-    const response = await axios.post("/api/update_collection", formData, {
+    const response = await axios.post<Blob>("/api/update_collection", formData, {
       responseType: "blob",
       params: {
         mappack_name: collectionName.value
       }
     });
 
-    const href = URL.createObjectURL(response.data);
-    const link = document.createElement("a");
-
-    link.href = href;
-    link.setAttribute("download", "collection.db");
-
-    document.body.appendChild(link);
-    link.click();
-
-    document.body.removeChild(link);
-    URL.revokeObjectURL(href);
+    downloadWithHref(response.data, "collection.db");
   } catch {
 
   }
