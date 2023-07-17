@@ -82,7 +82,7 @@ async def create_upload_file(file: UploadFile, mappack_name: str):
     collection_filename = Path(f"{collection_uuid}.db")
 
     await collection.save(collection_filename)
-    return FileResponse(collection_filename)
+    return FileResponse(collection_filename, media_type="application/zip")
 
 
 app.mount("/api", api_app)

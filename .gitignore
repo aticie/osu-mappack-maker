@@ -1,0 +1,7 @@
+__pycache__
+static
+dist
+
+*.osz
+*.db
+*.zip
