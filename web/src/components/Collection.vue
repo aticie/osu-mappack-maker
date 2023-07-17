@@ -45,6 +45,8 @@ const updateCollection = async () => {
 
 <template>
   <div class="grid gap-3 border border-neutral-800 bg-neutral-900 rounded p-4">
+    <h1 class="font-semibold mb-2 ml-1 text-neutral-400 text-sm">Add this mappack to your collection</h1>
+
     <BaseInput v-model="collectionName" title="Collection Name" />
     <input
       @change="onFileChange"
