@@ -27,11 +27,10 @@ const download = async () => {
   isFetching.value = true;
 
   try {
-    const response = await axios({
-      url: "/api/make_pool",
+    const response = await axios("/api/make_pool", {
       responseType: "blob",
       params: {
-        beatmaps: ids.value,
+        beatmaps: ids.value
       },
       onDownloadProgress: ({ progress, total }) => {
         if (!progress || !total) return;
@@ -40,7 +39,7 @@ const download = async () => {
         fileDownload.total = total / (1000 * 1000);
       },
     });
-    
+
     const file = URL.createObjectURL(response.data);
     location.assign(file);
 
