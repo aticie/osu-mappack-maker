@@ -23,7 +23,6 @@ class BaseAPI:
                         print(url, r.status, await r.read())
                         raise aiohttp.ClientError()
                     resp = await r.json(encoding="utf-8")
-
                 try:
                     return self.BEATMAP_CLASS(**resp)
                 except pydantic.ValidationError as e:
@@ -39,6 +38,8 @@ class BaseAPI:
                 async with sess.get(url) as r:
                     if r.status != 200:
                         print(url, r.status, await r.read())
+                        raise aiohttp.ClientError()
+                    elif r.headers["Content-Type"] != "application/octet-stream":
                         raise aiohttp.ClientError()
                     response_bytes = await r.read()
 
