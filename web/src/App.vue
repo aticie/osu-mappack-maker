@@ -24,13 +24,14 @@ const idsList = computed(() =>
 );
 
 const download = async () => {
+  if (!ids.value || idsList.value.length === 0) return;
   isFetching.value = true;
 
   try {
     const response = await axios("/api/make_pool", {
       responseType: "blob",
       params: {
-        beatmaps: ids.value
+        beatmaps: idsList.value
       },
       onDownloadProgress: ({ progress, total }) => {
         if (!progress || !total) return;
