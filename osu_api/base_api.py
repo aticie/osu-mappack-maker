@@ -1,6 +1,7 @@
 from typing import Union
 from urllib.parse import urljoin
 
+import aiofiles
 import aiohttp
 import pydantic
 
@@ -28,8 +29,10 @@ class BaseAPI:
                 except pydantic.ValidationError as e:
                     print(f"Pydantic Validation error: {url}, {resp}")
 
-    async def download_beatmapset(self, beatmapset_id: Union[int, str]):
+    async def download_beatmapset(self, beatmap):
         async with self.SEMAPHORE:
+            beatmapset_id = beatmap.beatmapset_id
+            beatmapset_filename = f"{beatmapset_id}.osz"
             async with aiohttp.ClientSession() as sess:
                 print(f"Downloading beatmapset for {beatmapset_id} with {self.__class__.__name__}.")
                 url = urljoin(self.BASE_URL, self.DL_BEATMAP_PATH.format(beatmapset_id))
@@ -38,4 +41,8 @@ class BaseAPI:
                         print(url, r.status, await r.read())
                         raise aiohttp.ClientError()
                     response_bytes = await r.read()
-                return response_bytes
+
+                async with aiofiles.open(beatmapset_filename, "wb") as f:
+                    await f.write(response_bytes)
+
+            return beatmapset_filename

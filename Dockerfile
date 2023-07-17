@@ -15,7 +15,11 @@ COPY ./requirements.txt /app/requirements.txt
 
 RUN pip install --no-cache-dir --upgrade -r /app/requirements.txt
 
+COPY ./osu_api /app/osu_api
 COPY ./main.py /app/main.py
+COPY ./throttle.py /app/throttle.py
+COPY ./collection.py /app/collection.py
+
 COPY --from=builder /build/dist /app/static
 
-ENTRYPOINT ["uvicorn", "app.main:app", "--host", "0.0.0.0", "--port", "80"]
+ENTRYPOINT ["uvicorn", "main:app", "--host", "0.0.0.0", "--port", "80"]

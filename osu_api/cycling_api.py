@@ -21,10 +21,10 @@ class CyclingAPI:
 
         raise Exception()
 
-    async def download_beatmapset(self, beatmapset_id: Union[str, int]):
+    async def download_beatmapset(self, beatmap):
         for api in self.apis:
             try:
-                beatmapset_contents = await api.download_beatmapset(beatmapset_id=beatmapset_id)
+                beatmapset_contents = await api.download_beatmapset(beatmap=beatmap)
                 return beatmapset_contents
             except aiohttp.ClientError as e:
                 continue

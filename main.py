@@ -4,13 +4,14 @@ import uuid
 from pathlib import Path
 
 import aiofiles
-from fastapi import FastAPI
+from fastapi import FastAPI, UploadFile
 from starlette.exceptions import HTTPException
 from starlette.middleware.cors import CORSMiddleware
 from starlette.responses import FileResponse
 from starlette.staticfiles import StaticFiles
 from zipstream import AioZipStream
 
+from collection import CollectionDB, Collection
 from osu_api.cycling_api import CyclingAPI
 
 logger = logging.getLogger()
@@ -54,8 +55,7 @@ async def make_pool(beatmaps: str):
 
     for fetch_task in asyncio.as_completed(fetch_tasks):
         beatmap = await fetch_task
-        beatmapset_id = beatmap.beatmapset_id
-        dl_task = asyncio.create_task(cycling_api.download_beatmapset(beatmapset_id=beatmapset_id))
+        dl_task = asyncio.create_task(cycling_api.download_beatmapset(beatmap=beatmap))
         download_tasks.append(dl_task)
 
     files = []
@@ -69,6 +69,20 @@ async def make_pool(beatmaps: str):
             await z.write(chunk)
 
     return FileResponse(mappack_filename, media_type="application/zip")
+
+
+@api_app.post("/update_collection")
+async def create_upload_file(file: UploadFile, mappack_name: str):
+    c = Collection(mappack_name)
+    collection = CollectionDB(file)
+    for task in asyncio.as_completed([collection.task]):
+        await task
+    collection.add_collection(c)
+    collection_uuid = uuid.uuid4().hex
+    collection_filename = Path(f"{collection_uuid}.db")
+
+    await collection.save(collection_filename)
+    return FileResponse(collection_filename)
 
 
 app.mount("/api", api_app)
