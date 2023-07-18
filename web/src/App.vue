@@ -1,9 +1,11 @@
 <script setup lang="ts">
-import Collection from "./components/Collection.vue";
+import TheCollection from "./components/TheCollection.vue";
 import BaseInput from "./components/ui/BaseInput.vue";
 import BaseButton from "./components/ui/BaseButton.vue";
 import Spinner from "./components/icons/Spinner.vue";
+import TheToast from "./components/TheToast.vue";
 
+import { emitter } from "./composables/useMitt";
 import { downloadWithHref } from "./download";
 import { ref, reactive, computed } from "vue";
 import axios from "axios";
@@ -33,13 +35,20 @@ const download = async () => {
     const response = await axios("/api/make_pool", {
       responseType: "blob",
       params: {
-        beatmaps: ids.value
-      }
+        beatmaps: ids.value,
+      },
     });
 
     downloadWithHref(response.data);
     isCollection.value = true;
-  } catch {
+  } catch (error) {
+    if (axios.isAxiosError(error)) {
+      emitter.emit("notify", {
+        title: error.message,
+        message: "An error occured when creating mappack.",
+        error: true
+      });
+    }
   } finally {
     isFetching.value = false;
     fileDownload.progress = 0;
@@ -49,12 +58,20 @@ const download = async () => {
 </script>
 
 <template>
+  <TheToast />
+
   <main
     class="min-h-screen max-w-md mx-auto flex flex-col justify-center gap-6 p-2"
   >
-    <BaseInput v-model="ids" title="Paste the beatmap ids and click to download mappack." />
+    <BaseInput
+      v-model="ids"
+      title="Paste the beatmap ids and click to download mappack."
+    />
 
-    <div v-if="isFetching" class="grid gap-2 place-content-center justify-items-center bg-neutral-900 p-2 rounded">
+    <div
+      v-if="isFetching"
+      class="grid gap-2 place-content-center justify-items-center bg-neutral-900 p-2 rounded"
+    >
       <p>Creating Mappack</p>
       <Spinner />
     </div>
@@ -64,11 +81,9 @@ const download = async () => {
         Map ids you've copied {{ idsList }}
       </p>
 
-      <BaseButton @click="download">
-        Get Mappack!
-      </BaseButton>
+      <BaseButton @click="download"> Get Mappack! </BaseButton>
     </div>
 
-    <Collection v-if="isCollection" />
+    <TheCollection v-if="isCollection" />
   </main>
 </template>

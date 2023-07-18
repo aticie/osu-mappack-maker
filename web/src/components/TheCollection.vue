@@ -2,8 +2,10 @@
 import BaseInput from "./ui/BaseInput.vue";
 import BaseButton from "./ui/BaseButton.vue";
 import axios from "axios";
+
 import { ref } from "vue";
 import { downloadWithHref } from "../download";
+import { emitter } from "../composables/useMitt";
 
 const collectionName = ref("");
 const collectionFile = ref<File | undefined>();
@@ -28,8 +30,14 @@ const updateCollection = async () => {
     });
 
     downloadWithHref(response.data, "collection.db");
-  } catch {
-
+  } catch(error) {
+    if (axios.isAxiosError(error)) {
+      emitter.emit("notify", {
+        title: error.message,
+        message: "An error occured when creating collection.",
+        error: true
+      });
+    }
   }
 };
 </script>
