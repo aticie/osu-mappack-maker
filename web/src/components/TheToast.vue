@@ -3,7 +3,7 @@ import { ref, onMounted, onUnmounted } from "vue";
 import { emitter, Event } from "../composables/useMitt";
 
 interface EventWithId extends Event {
-  id: number
+  id: number;
 }
 
 const notifications = ref<Array<EventWithId>>([]);
@@ -14,27 +14,42 @@ onMounted(() => {
 
     notifications.value.push({
       id: id,
-      ...e
+      ...e,
     });
 
     setTimeout(() => {
-      let found = notifications.value.findIndex(x => x.id === id);
+      let found = notifications.value.findIndex((x) => x.id === id);
       notifications.value.splice(found, 1);
-    }, 5000)
+    }, 5000);
   });
 });
 
 onUnmounted(() => {
   emitter.off("notify");
 });
+
+const beforeLeave = (el: Element) => {
+  const element = el as HTMLElement;
+
+  const { width, height } = element.getBoundingClientRect();
+  element.style.width = `${width}px`;
+  element.style.height = `${height}px`;
+};
 </script>
 
 <template>
-  <div class="fixed top-5 left-5 grid gap-2">
+  <TransitionGroup
+    tag="div"
+    class="fixed top-5 left-5 flex flex-col gap-2 text-sm"
+    enter-from-class="opacity-0 -translate-x-full"
+    leave-to-class="opacity-0 -translate-x-full"
+    leave-active-class="absolute"
+    @beforeLeave="beforeLeave"
+  >
     <div
       v-for="notif in notifications"
-      :key="notif.title"
-      class="flex gap-2 p-2 bg-neutral-900 rounded-md border border-neutral-800 max-w-sm"
+      :key="notif.id"
+      class="flex gap-2 p-2 bg-neutral-900 rounded-md border border-neutral-800 max-w-sm transition-all"
     >
       <svg
         v-if="notif.error"
@@ -50,8 +65,8 @@ onUnmounted(() => {
 
       <div>
         <h1 class="font-semibold">{{ notif.title }}</h1>
-        <p class="col-start-2 text-sm break-all">{{ notif.message }}</p>
+        <p class="col-start-2 break-all">{{ notif.message }}</p>
       </div>
     </div>
-  </div>
+  </TransitionGroup>
 </template>
