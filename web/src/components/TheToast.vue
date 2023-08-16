@@ -49,7 +49,7 @@ const beforeLeave = (el: Element) => {
     <div
       v-for="notif in notifications"
       :key="notif.id"
-      class="flex gap-2 p-2 bg-neutral-900 rounded-md border border-neutral-800 max-w-sm transition-all"
+      class="flex gap-2 p-4 bg-surface-inverse-on rounded-md border-2 border-outline max-w-sm transition-all"
     >
       <svg
         v-if="notif.error"

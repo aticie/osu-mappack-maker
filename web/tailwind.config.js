@@ -9,7 +9,12 @@ export default {
       colors: {
         "surface": {
           DEFAULT: "#181212",
-          on: "#d0c4c4"
+          on: "#d0c4c4",
+          inverse: "#ece0e0",
+          "inverse-on": "#201a1a"
+        },
+        "outline": {
+          DEFAULT: "#9f8c8d"
         },
         "surface-container": {
           DEFAULT: "#241e1e",
