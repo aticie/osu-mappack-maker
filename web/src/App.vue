@@ -5,7 +5,6 @@ import Spinner from "./components/icons/Spinner.vue";
 import TheToast from "./components/TheToast.vue";
 
 import { emitter } from "./composables/useMitt";
-import { downloadWithHref } from "./download";
 import { ref, reactive, computed } from "vue";
 import axios from "axios";
 
@@ -36,10 +35,18 @@ const download = async () => {
       params: {
         beatmaps: ids.value,
       },
+      onDownloadProgress: ({ progress, total }) => {
+        if (!progress || !total) return;
+
+        fileDownload.progress = progress * 100;
+        fileDownload.total = total / (1000 * 1000);
+      },
     });
 
-    downloadWithHref(response.data);
-    // showCollection.value = true;
+    const file = URL.createObjectURL(response.data);
+    location.assign(file);
+
+    URL.revokeObjectURL(file);
   } catch (error) {
     if (axios.isAxiosError(error)) {
       emitter.emit("notify", {
@@ -73,10 +80,22 @@ const download = async () => {
 
     <div
       v-if="isFetching"
-      class="grid gap-2 place-content-center justify-items-center bg-surface-container p-2 rounded"
+      class="grid gap-2 justify-items-center bg-surface-container rounded overflow-hidden"
     >
-      <p class="text-surface-on">Creating Mappack</p>
-      <Spinner />
+      <div class="p-2 grid justify-items-center gap-2">
+        <p class="text-surface-on">Creating Mappack</p>
+        <Spinner />
+      </div>
+
+      <div
+        v-if="fileDownload.progress"
+        class="h-6 w-full bg-surface-container-highest overflow-hidden"
+      >
+        <div
+          :style="{ width: `${fileDownload.progress}%` }"
+          class="h-full bg-primary"
+        />
+      </div>
     </div>
 
     <div class="flex flex-col gap-1">
