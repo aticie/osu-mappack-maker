@@ -67,9 +67,9 @@ const download = async () => {
   <TheToast />
 
   <main
-    class="min-h-screen max-w-md mx-auto flex flex-col justify-center gap-6 p-2"
+    class="min-h-screen max-w-md mx-auto flex flex-col justify-center gap-6 p-2 pb-10"
   >
-    <h1 class="text-center font-semibold mb-24 text-primary">
+    <h1 class="text-center font-semibold text-lg text-primary mb-10">
       heyronii's Mappack Maker
     </h1>
 
