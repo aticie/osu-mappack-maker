@@ -69,7 +69,7 @@ const download = async () => {
     />
 
     <div
-      v-if="!isFetching"
+      v-if="isFetching"
       class="grid gap-2 place-content-center justify-items-center bg-surface-container p-2 rounded"
     >
       <p class="text-surface-on">Creating Mappack</p>
