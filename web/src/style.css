@@ -1,9 +1,12 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter&display=swap');
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
 @layer base {
   html, body {
-    @apply bg-neutral-950 text-neutral-300;
+    @apply bg-surface text-surface-on;
+    font-family: 'Inter', sans-serif;
   }
 }

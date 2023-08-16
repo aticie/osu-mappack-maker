@@ -5,7 +5,26 @@ export default {
     "./src/**/*.{vue,js,ts,jsx,tsx}",
   ],
   theme: {
-    extend: {},
+    extend: {
+      colors: {
+        "surface": {
+          DEFAULT: "#181212",
+          on: "#d0c4c4"
+        },
+        "surface-container": {
+          DEFAULT: "#241e1e",
+          highest: "#3a3333"
+        },
+        "primary": {
+          DEFAULT: "#ffb2ba",
+          on: "#670020"
+        },
+        "primary-container": {
+          DEFAULT: "#910130",
+          on: "#ffd9dc"
+        }
+      }
+    },
   },
   plugins: [],
 }

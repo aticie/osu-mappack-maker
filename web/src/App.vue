@@ -65,19 +65,19 @@ const download = async () => {
   >
     <BaseInput
       v-model="ids"
-      title="Paste the beatmap ids and click to download mappack."
+      label="Paste the beatmap ids and click to download mappack."
     />
 
     <div
-      v-if="isFetching"
-      class="grid gap-2 place-content-center justify-items-center bg-neutral-900 p-2 rounded"
+      v-if="!isFetching"
+      class="grid gap-2 place-content-center justify-items-center bg-surface-container p-2 rounded"
     >
-      <p>Creating Mappack</p>
+      <p class="text-surface-on">Creating Mappack</p>
       <Spinner />
     </div>
 
     <div class="flex flex-col gap-1">
-      <p v-if="idsList.length > 1" class="text-neutral-400 text-sm ml-1">
+      <p v-if="idsList.length > 1" class="text-sm ml-1 font-medium">
         Map ids you've copied {{ idsList }}
       </p>
 

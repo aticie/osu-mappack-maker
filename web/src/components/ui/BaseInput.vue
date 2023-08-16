@@ -1,13 +1,19 @@
 <script setup lang="ts">
 const modelValue = defineModel();
 defineProps<{
-  title?: string
+  label?: string;
 }>();
 </script>
 
 <template>
   <div>
-    <p v-if="title" class="font-medium text-sm ml-1">{{ title }}</p>
-    <input v-model="modelValue" class="p-2 bg-neutral-900 rounded border dark:border-neutral-800 w-full" />
+    <label v-if="label" class="font-medium text-sm ml-1" for="label">{{
+      label
+    }}</label>
+    <input
+      id="label"
+      v-model="modelValue"
+      class="p-2 bg-surface-container-highest rounded w-full"
+    />
   </div>
 </template>
