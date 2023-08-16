@@ -4,8 +4,8 @@ import BaseButton from "./ui/BaseButton.vue";
 import axios from "axios";
 
 import { ref } from "vue";
-import { downloadWithHref } from "../download";
 import { emitter } from "../composables/useMitt";
+import { downloadWithHref } from "../download"
 
 const collectionName = ref("");
 const collectionFile = ref<File | undefined>();
