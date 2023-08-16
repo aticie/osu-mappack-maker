@@ -1,5 +1,4 @@
 <script setup lang="ts">
-import TheCollection from "./components/TheCollection.vue";
 import BaseInput from "./components/ui/BaseInput.vue";
 import BaseButton from "./components/ui/BaseButton.vue";
 import Spinner from "./components/icons/Spinner.vue";
@@ -10,7 +9,7 @@ import { downloadWithHref } from "./download";
 import { ref, reactive, computed } from "vue";
 import axios from "axios";
 
-const isCollection = ref(false);
+// const showCollection = ref(false);
 const isFetching = ref(false);
 const ids = ref("");
 
@@ -40,13 +39,13 @@ const download = async () => {
     });
 
     downloadWithHref(response.data);
-    isCollection.value = true;
+    // showCollection.value = true;
   } catch (error) {
     if (axios.isAxiosError(error)) {
       emitter.emit("notify", {
         title: error.message,
         message: "An error occured when creating mappack.",
-        error: true
+        error: true,
       });
     }
   } finally {
@@ -63,6 +62,10 @@ const download = async () => {
   <main
     class="min-h-screen max-w-md mx-auto flex flex-col justify-center gap-6 p-2"
   >
+    <h1 class="text-center font-semibold mb-24 text-primary">
+      heyronii's Mappack Maker
+    </h1>
+
     <BaseInput
       v-model="ids"
       label="Paste the beatmap ids and click to download mappack."
@@ -84,6 +87,6 @@ const download = async () => {
       <BaseButton @click="download"> Get Mappack! </BaseButton>
     </div>
 
-    <TheCollection v-if="isCollection" />
+    <!-- <TheCollection v-if="showCollection" /> -->
   </main>
 </template>
