@@ -8,7 +8,7 @@ from osu_api.base_api import BaseAPI
 ripple_semaphore = asyncio.Semaphore(2)
 
 
-class AkatsukiAPI(BaseAPI):
+class RippleAPI(BaseAPI):
     BASE_URL = "https://storage.ripple.moe/"
     DL_BEATMAP_PATH = "d/{}"
     SEMAPHORE = ripple_semaphore
