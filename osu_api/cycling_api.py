@@ -1,4 +1,3 @@
-from itertools import cycle
 from typing import Union
 
 from osu_api import AkatsukiAPI, ChimuAPI, DirectAPI, NerinyanAPI, GatariAPI, RippleAPI, CatboyAPI, OsuAPI
@@ -6,7 +5,7 @@ from osu_api import AkatsukiAPI, ChimuAPI, DirectAPI, NerinyanAPI, GatariAPI, Ri
 
 class CyclingAPI:
     def __init__(self):
-        self.apis = cycle([OsuAPI(), DirectAPI(), ChimuAPI(), NerinyanAPI(), AkatsukiAPI(), GatariAPI(), RippleAPI(), CatboyAPI()])
+        self.apis = [OsuAPI(), DirectAPI(), ChimuAPI(), NerinyanAPI(), AkatsukiAPI(), GatariAPI(), RippleAPI(), CatboyAPI()]
 
     async def get_beatmap(self, beatmap_id: Union[str, int]):
         for api in self.apis:
