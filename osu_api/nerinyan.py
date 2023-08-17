@@ -28,8 +28,8 @@ class NerinyanBeatmap(BaseModel):
     count_sliders: int
     count_spinners: int
     cs: float
-    deleted_at: Optional[datetime.datetime]
-    drain: int
+    deleted_at: Optional[datetime.datetime] = None
+    drain: float
     hit_length: int
     is_scoreable: bool
     last_updated: datetime.datetime
@@ -37,28 +37,28 @@ class NerinyanBeatmap(BaseModel):
     passcount: int
     playcount: int
     ranked: int
-    url: Optional[str]
+    url: Optional[str] = None
     checksum: str
     max_combo: int
 
 
 class HypeOrNominations(BaseModel):
-    current: Optional[int]
-    required: Optional[int]
+    current: Optional[int] = None
+    required: Optional[int] = None
 
 
 class Availability(BaseModel):
     download_disabled: bool
-    more_information: Optional[str]
+    more_information: Optional[str] = None
 
 
 class Description(BaseModel):
-    description: Optional[str]
+    description: Optional[str] = None
 
 
 class GenreOrLanguage(BaseModel):
-    id: Optional[str]
-    name: Optional[str]
+    id: Optional[str] = None
+    name: Optional[str] = None
 
 
 class NerinyanBeatmapset(BaseModel):
@@ -70,7 +70,7 @@ class NerinyanBeatmapset(BaseModel):
     id: int
     nsfw: bool
     play_count: int
-    preview_url: Optional[str]
+    preview_url: Optional[str] = None
     source: str
     status: str
     title: str
@@ -80,23 +80,23 @@ class NerinyanBeatmapset(BaseModel):
     availability: Availability
     bpm: float
     can_be_hyped: bool
-    discussion_enabled: Optional[bool]
-    discussion_locked: Optional[bool]
+    discussion_enabled: Optional[bool] = None
+    discussion_locked: Optional[bool] = None
     is_scoreable: bool
     last_updated: datetime.datetime
     legacy_thread_url: str
     nominations_summary: HypeOrNominations
     ranked: int
-    ranked_date: Optional[datetime.datetime]
+    ranked_date: Optional[datetime.datetime] = None
     storyboard: bool
     submitted_date: datetime.datetime
     tags: str
     has_favourited: bool
     beatmaps: List[NerinyanBeatmap]
-    description: Optional[str]
+    description: Optional[str] = None
     genre: GenreOrLanguage
     language: GenreOrLanguage
-    ratings_string: Optional[str]
+    ratings_string: Optional[str] = None
 
 
 class NerinyanAPI(BaseAPI):

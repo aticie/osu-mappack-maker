@@ -36,7 +36,7 @@ class BaseAPI:
                 try:
                     return self.BEATMAP_CLASS(**resp)
                 except pydantic.ValidationError as e:
-                    logger.error(f"Pydantic Validation error: {url}, {resp}")
+                    logger.error(f"Pydantic Validation error: {url}, {resp}, {e}")
 
     async def download_beatmapset(self, beatmap) -> str:
         async with self.SEMAPHORE:
