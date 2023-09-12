@@ -47,7 +47,7 @@ class BaseAPI:
                 url = urljoin(self.BASE_URL, self.DL_BEATMAP_PATH.format(beatmapset_id))
                 async with sess.get(url) as r:
                     if r.status != 200:
-                        logger.warning(url, r.status, await r.read())
+                        logger.error(f"{url}, {r.status}, {await r.read()}")
                         raise aiohttp.ClientError()
                     elif (r.headers["Content-Type"] != "application/octet-stream") == \
                             (r.headers["Content-Type"] != "application/x-osu-beatmap-archive"):
