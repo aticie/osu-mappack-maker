@@ -16,7 +16,7 @@ class CyclingAPI:
             except:
                 continue
 
-        raise Exception(f"Getting beatmap info for beatmap iD {beatmap_id} failed.")
+        raise Exception(f"Getting beatmap info for beatmap id {beatmap_id} failed.")
 
     async def download_beatmapset(self, beatmap):
         for api in self.apis:

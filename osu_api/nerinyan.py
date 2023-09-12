@@ -38,8 +38,8 @@ class NerinyanBeatmap(BaseModel):
     playcount: int
     ranked: int
     url: Optional[str] = None
-    checksum: str
-    max_combo: int
+    checksum: Optional[str] = None
+    max_combo: Optional[int] = None
 
 
 class HypeOrNominations(BaseModel):

@@ -3,7 +3,7 @@ from pydantic import BaseModel
 
 from osu_api.base_api import BaseAPI
 
-direct_semaphore = Semaphore(10)
+direct_semaphore = Semaphore(5)
 
 
 class DirectBeatmap(BaseModel):
