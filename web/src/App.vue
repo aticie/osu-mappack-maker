@@ -45,7 +45,14 @@ const download = async () => {
     console.log(response.data)
     job_id.value = response.data;
     console.log(job_id.value)
-    const ws = new WebSocket(`ws://${location.host}/api/jobs/${job_id.value}`);
+    var loc = window.location, wsUrl;
+if (loc.protocol === "https:") {
+    wsUrl = "wss:";
+} else {
+    wsUrl = "ws:";
+}
+wsUrl += "//" + loc.host;
+    const ws = new WebSocket(wsUrl + `/api/jobs/${job_id.value}`);
     ws.onmessage = async (event) => {
       let eventDataObj = JSON.parse(event.data);
       console.log(eventDataObj)
