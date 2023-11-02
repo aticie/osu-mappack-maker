@@ -16,9 +16,12 @@ COPY ./requirements.txt /app/requirements.txt
 RUN pip install --no-cache-dir --upgrade -r /app/requirements.txt
 
 COPY ./osu_api /app/osu_api
+COPY ./models /app/models
+COPY ./osu_models /app/osu_models
+COPY ./mappacker /app/mappacker
 COPY ./main.py /app/main.py
-COPY ./throttle.py /app/throttle.py
 COPY ./collection.py /app/collection.py
+COPY ./logging.conf /app/logging.conf
 
 COPY --from=builder /build/dist /app/static
 
