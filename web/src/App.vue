@@ -16,6 +16,7 @@ const job_id = ref();
 const beatmaps = ref(0);
 const gathered = ref(0);
 const downloaded = ref(0);
+const errors = ref(0);
 
 // const progress = ref(0);
 const fileDownload = reactive({
@@ -49,6 +50,7 @@ const download = async () => {
       let eventDataObj = JSON.parse(event.data);
       console.log(eventDataObj)
       if (eventDataObj.errors) {
+        errors.value += 1;
         emitter.emit("notify", {
         title: eventDataObj.errors,
         message: "A beatmap could not be downloaded.",
@@ -60,13 +62,13 @@ const download = async () => {
         gathered.value = eventDataObj.gathered;
         downloaded.value = eventDataObj.downloaded;
 
-        if (beatmaps.value === gathered.value){
+        if (beatmaps.value - errors.value === gathered.value){
           isGathering.value = false;
         }
         else{
           isGathering.value = true;
         }
-        if (beatmaps.value === downloaded.value){
+        if (beatmaps.value - errors.value === downloaded.value){
           isDownloading.value = false;
         }
         else{
