@@ -2,5 +2,6 @@ venv
 beatmaps
 web/node_modules
 web/dist
-static
+static/
+serve/
 *.zip
