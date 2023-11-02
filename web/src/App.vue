@@ -8,9 +8,15 @@ import { emitter } from "./composables/useMitt";
 import { ref, reactive, computed } from "vue";
 import axios from "axios";
 
-// const showCollection = ref(false);
 const isFetching = ref(false);
+const isGathering = ref(true);
+const isDownloading = ref(true);
 const ids = ref("");
+const job_id = ref();
+const beatmaps = ref(0);
+const gathered = ref(0);
+const downloaded = ref(0);
+const packed = ref(0);
 
 // const progress = ref(0);
 const fileDownload = reactive({
@@ -31,22 +37,51 @@ const download = async () => {
 
   try {
     const response = await axios("/api/make_pool", {
-      responseType: "blob",
+      responseType: "text",
       params: {
         beatmaps: ids.value,
       },
-      onDownloadProgress: ({ progress, total }) => {
-        if (!progress || !total) return;
-
-        fileDownload.progress = progress * 100;
-        fileDownload.total = total / (1000 * 1000);
-      },
     });
+    console.log(response.data)
+    job_id.value = response.data;
+    console.log(job_id.value)
+    const ws = new WebSocket(`ws://localhost:8000/api/jobs/${job_id.value}`);
+    ws.onmessage = async (event) => {
+      let eventDataObj = JSON.parse(event.data);
+      console.log(eventDataObj)
+      if (eventDataObj.errors) {
+        emitter.emit("notify", {
+        title: eventDataObj.errors,
+        message: "A beatmap could not be downloaded.",
+        error: true,
+      });
+      }
+      if (!eventDataObj.completed) {
+        beatmaps.value = eventDataObj.beatmaps;
+        gathered.value = eventDataObj.gathered;
+        downloaded.value = eventDataObj.downloaded;
+        packed.value = eventDataObj.packed;
+      }else{
+        console.log(`Data is ready at: ${eventDataObj.result_path}`)
+        isFetching.value = false;
+        const response = await axios(`/${eventDataObj.result_path}`, {
+          responseType: "blob",
+          onDownloadProgress: ({ progress, total }) => {
+            if (!progress || !total) return;
 
-    const file = URL.createObjectURL(response.data);
-    location.assign(file);
+            fileDownload.progress = progress * 100;
+            fileDownload.total = total / (1000 * 1000);
+          },
+        });
+        const file = URL.createObjectURL(response.data);
+        location.assign(file);
+        URL.revokeObjectURL(file);
 
-    URL.revokeObjectURL(file);
+        fileDownload.progress = 0;
+        fileDownload.total = 0;
+        console.log(eventDataObj.result_path);
+      }
+    };
   } catch (error) {
     if (axios.isAxiosError(error)) {
       emitter.emit("notify", {
@@ -55,10 +90,10 @@ const download = async () => {
         error: true,
       });
     }
+    else{
+      console.error(error)
+    }
   } finally {
-    isFetching.value = false;
-    fileDownload.progress = 0;
-    fileDownload.total = 0;
   }
 };
 </script>
@@ -83,8 +118,9 @@ const download = async () => {
       class="grid gap-2 justify-items-center bg-surface-container rounded overflow-hidden"
     >
       <div class="p-2 grid justify-items-center gap-2">
-        <p class="text-surface-on">Creating Mappack</p>
-        <Spinner />
+        <div class="text-surface-on flex flex-row"><p>Creating Mappack</p></div>
+        <p class="text-surface-on flex flex-row gap-2">Gathering {{gathered}}/{{beatmaps}}<Spinner v-if="isGathering"/></p>
+        <p class="text-surface-on flex flex-row gap-2">Downloading {{downloaded}}/{{beatmaps}}<Spinner v-if="isDownloading"/></p>
       </div>
 
       <div
@@ -98,7 +134,7 @@ const download = async () => {
       </div>
     </div>
 
-    <div class="flex flex-col gap-1">
+    <div class="flex flex-col gap-1" id="messages">
       <p v-if="idsList.length > 1" class="text-sm ml-1 font-medium">
         Map ids you've copied {{ idsList }}
       </p>
