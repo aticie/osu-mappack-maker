@@ -9,14 +9,13 @@ import { ref, reactive, computed } from "vue";
 import axios from "axios";
 
 const isFetching = ref(false);
-const isGathering = ref(true);
-const isDownloading = ref(true);
+const isGathering = ref(false);
+const isDownloading = ref(false);
 const ids = ref("");
 const job_id = ref();
 const beatmaps = ref(0);
 const gathered = ref(0);
 const downloaded = ref(0);
-const packed = ref(0);
 
 // const progress = ref(0);
 const fileDownload = reactive({
@@ -60,7 +59,20 @@ const download = async () => {
         beatmaps.value = eventDataObj.beatmaps;
         gathered.value = eventDataObj.gathered;
         downloaded.value = eventDataObj.downloaded;
-        packed.value = eventDataObj.packed;
+
+        if (beatmaps.value === gathered.value){
+          isGathering.value = false;
+        }
+        else{
+          isGathering.value = true;
+        }
+        if (beatmaps.value === downloaded.value){
+          isDownloading.value = false;
+        }
+        else{
+          isDownloading.value = true;
+        }
+        
       }else{
         console.log(`Data is ready at: ${eventDataObj.result_path}`)
         isFetching.value = false;
