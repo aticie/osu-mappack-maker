@@ -45,7 +45,7 @@ const download = async () => {
     console.log(response.data)
     job_id.value = response.data;
     console.log(job_id.value)
-    const ws = new WebSocket(`ws://localhost:8000/api/jobs/${job_id.value}`);
+    const ws = new WebSocket(`ws://${location.host}/api/jobs/${job_id.value}`);
     ws.onmessage = async (event) => {
       let eventDataObj = JSON.parse(event.data);
       console.log(eventDataObj)
