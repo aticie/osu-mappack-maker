@@ -2,27 +2,22 @@ FROM node:20-alpine3.18 AS builder
 
 WORKDIR /build
 
-COPY ./web /build
+COPY web /build
 
 RUN npm i
 RUN npm run build
 
-FROM python:3.11
+FROM python:3.11.6
 
 WORKDIR /app
 
-COPY ./requirements.txt /app/requirements.txt
+COPY mappacker/requirements.txt /app/requirements.txt
 
 RUN pip install --no-cache-dir --upgrade -r /app/requirements.txt
 
-COPY ./osu_api /app/osu_api
-COPY ./models /app/models
-COPY ./osu_models /app/osu_models
-COPY ./mappacker /app/mappacker
-COPY ./main.py /app/main.py
-COPY ./collection.py /app/collection.py
-COPY ./logging.conf /app/logging.conf
+COPY mappacker /app/mappacker
+COPY main.py /app
 
 COPY --from=builder /build/dist /app/static
 
-ENTRYPOINT ["uvicorn", "main:app", "--host", "0.0.0.0", "--port", "80"]
+ENTRYPOINT ["python", "main.py"]

@@ -1,19 +1,19 @@
 import os
 import zipfile
-from typing import List, Union
+from typing import List, Union, AsyncGenerator
 
-from models import Job
+from mappacker.models import Job
 
 
 class BeatmapPacker:
     def __init__(self, job: Job):
         self.job = job
 
-    async def run(self, filepaths: List[str], job_id: Union[int, str]):
+    async def run(self, filepaths: AsyncGenerator[str, None], job_id: Union[int, str]):
         zipfile_path = f"serve/{job_id}.zip"
         with open(zipfile_path, 'wb+') as temp_file:
             with zipfile.ZipFile(temp_file, mode='w', compression=zipfile.ZIP_DEFLATED) as temp_zip:
-                for i, fpath in enumerate(filepaths):
+                async for fpath in filepaths:
                     if fpath is None:
                         continue
                     fdir, fname = os.path.split(fpath)

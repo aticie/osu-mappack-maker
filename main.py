@@ -1,23 +1,25 @@
 import asyncio
+import gc
 import hashlib
 import json
 import logging.config
 import os
 from asyncio import Queue
-from typing import Dict, Collection, Union
+from typing import Dict, Collection, Union, Iterable, Any, AsyncGenerator
 
 import uvicorn
 from fastapi import FastAPI
-from fastapi.responses import PlainTextResponse
 from fastapi.exceptions import HTTPException
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.responses import PlainTextResponse
 from fastapi.staticfiles import StaticFiles
 from fastapi.websockets import WebSocket
 
-from mappacker import BeatmapDownloader, BeatmapGatherer, BeatmapPacker
-from models import Job
+from mappacker.utils.aiohttp import SingletonAiohttp
+from mappacker.engines import BeatmapDownloader, BeatmapGatherer, BeatmapPacker
+from mappacker.models import Job
 
-logging.config.fileConfig('logging.conf', disable_existing_loggers=False)
+logging.config.fileConfig('mappacker/logging.conf', disable_existing_loggers=False)
 
 logger = logging.getLogger(__name__)
 
@@ -34,6 +36,11 @@ app.add_middleware(
 job_queues: Dict[str, Queue] = {}
 
 os.makedirs("serve", exist_ok=True)
+gc.enable()
+
+async def list_to_async_gen(list: Iterable[Any]) -> AsyncGenerator[Any, None]:
+    for elem in list:
+        yield elem
 
 
 async def run(job: Job, beatmaps: Collection[Union[str, int]]):
@@ -43,12 +50,14 @@ async def run(job: Job, beatmaps: Collection[Union[str, int]]):
     downloader = BeatmapDownloader(job)
     packer = BeatmapPacker(job)
 
-    beatmap_responses = gatherer.run(beatmap_ids=beatmaps)
-    beatmap_files = await downloader.run(beatmap_responses, job_id)
+    beatmap_gen = list_to_async_gen(beatmaps)
+    beatmap_responses = gatherer.run(task_args=beatmap_gen)
+    beatmap_files = downloader.run(task_args=beatmap_responses)
     zip_file = await packer.run(beatmap_files, job_id)
     job.result_path = zip_file
     job.completed = True
-    return
+    job_queues.pop(job_id)
+    gc.collect()
 
 
 @api_app.websocket("/jobs/{job_id}")
@@ -72,7 +81,10 @@ async def make_pool(beatmaps: str):
     unique_beatmaps = set(filter(lambda x: (x != ''), beatmaps_list))
 
     if len(unique_beatmaps) > 30:
-        raise HTTPException(403, "Beatmap ids can't be more than 30.")
+        raise HTTPException(400, "Beatmap ids can't be more than 30.")
+
+    if len(job_queues) >= 1:
+        raise HTTPException(500, "Server is busy right now...")
 
     job_beatmaps = str(tuple(sorted(list(unique_beatmaps)))).encode()
     job_id = hashlib.md5(job_beatmaps).hexdigest()
@@ -86,9 +98,19 @@ async def make_pool(beatmaps: str):
     return job_id
 
 
+async def on_start_up() -> None:
+    logger.info(f"on_start_up calling SingletonAiohttp.get_aiohttp_client()")
+    SingletonAiohttp.get_aiohttp_client()
+
+
+async def on_shutdown() -> None:
+    logger.info(f"on_shutdown calling SingletonAiohttp.close_aiohttp_client()")
+    await SingletonAiohttp.close_aiohttp_client()
+
+
 app.mount("/api", api_app)
 app.mount("/serve", StaticFiles(directory="serve"), name="serve")
 app.mount("/", StaticFiles(directory="static", html=True), name="static")
 
 if __name__ == "__main__":
-    uvicorn.run("main:app", port=8000, reload=True, reload_excludes=["__pycache__", ])
+    uvicorn.run("main:app", host="0.0.0.0", port=8000, workers=1, ws_max_size=1024*1024)

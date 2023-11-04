@@ -1,9 +1,7 @@
 import asyncio
 
-from osu_api.base_api import BaseAPI
-from osu_models.chimu import ChimuBeatmap, ChimuBeatmapset
-
-chimu_semaphore = asyncio.Semaphore(1)
+from mappacker.osu_api.base_api import BaseAPI
+from mappacker.osu_models.chimu import ChimuBeatmap, ChimuBeatmapset
 
 
 class ChimuAPI(BaseAPI):
@@ -11,6 +9,6 @@ class ChimuAPI(BaseAPI):
     GET_BEATMAP_PATH = "v1/map/{}"
     GET_BEATMAPSET_PATH = "v1/set/{}"
     DL_BEATMAP_PATH = "v1/download/{}"
-    SEMAPHORE = chimu_semaphore
+    SEMAPHORE = asyncio.Semaphore(3)
     BEATMAP_CLASS = ChimuBeatmap
     BEATMAPSET_CLASS = ChimuBeatmapset
