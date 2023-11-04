@@ -86,7 +86,7 @@ class NerinyanBeatmapset(BaseModel):
     tags: str
     has_favourited: Optional[bool] = None
     beatmaps: List[NerinyanBeatmap]
-    description: Optional[Description] = None
+    description: Optional[Union[Description, str]] = None
     genre: Optional[GenreOrLanguage] = None
     language: Optional[GenreOrLanguage] = None
     ratings_string: Optional[str] = None

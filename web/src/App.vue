@@ -13,10 +13,13 @@ const isGathering = ref(false);
 const isDownloading = ref(false);
 const ids = ref("");
 const job_id = ref();
-const beatmaps = ref(0);
-const gathered = ref(0);
-const downloaded = ref(0);
-const errors = ref(0);
+const processProgress = reactive({
+  beatmaps: 0,
+  gathered: 0,
+  downloaded: 0,
+  errors: "",
+});
+var DlErrors = 0;
 
 // const progress = ref(0);
 const fileDownload = reactive({
@@ -42,49 +45,45 @@ const download = async () => {
         beatmaps: ids.value,
       },
     });
-    console.log(response.data)
     job_id.value = response.data;
-    console.log(job_id.value)
-    var loc = window.location, wsUrl;
-if (loc.protocol === "https:") {
-    wsUrl = "wss:";
-} else {
-    wsUrl = "ws:";
-}
-wsUrl += "//" + loc.host;
+    var loc = window.location,
+      wsUrl;
+    if (loc.protocol === "https:") {
+      wsUrl = "wss:";
+    } else {
+      wsUrl = "ws:";
+    }
+    wsUrl += "//" + loc.host;
     const ws = new WebSocket(wsUrl + `/api/jobs/${job_id.value}`);
     ws.onmessage = async (event) => {
       let eventDataObj = JSON.parse(event.data);
-      console.log(eventDataObj)
       if (eventDataObj.errors) {
-        errors.value += 1;
+        DlErrors += 1;
         emitter.emit("notify", {
-        title: eventDataObj.errors,
-        message: "A beatmap could not be downloaded.",
-        error: true,
-      });
+          title: eventDataObj.errors,
+          message: "A beatmap could not be downloaded.",
+          error: true,
+        });
       }
       if (!eventDataObj.completed) {
-        beatmaps.value = eventDataObj.beatmaps;
-        gathered.value = eventDataObj.gathered;
-        downloaded.value = eventDataObj.downloaded;
+        processProgress.beatmaps = eventDataObj.beatmaps;
+        processProgress.gathered = eventDataObj.gathered;
+        processProgress.downloaded = eventDataObj.downloaded;
 
-        if (beatmaps.value - errors.value === gathered.value){
+        if (processProgress.beatmaps - DlErrors === processProgress.gathered) {
           isGathering.value = false;
-        }
-        else{
+        } else {
           isGathering.value = true;
         }
-        if (beatmaps.value - errors.value === downloaded.value){
+        if (
+          processProgress.beatmaps - DlErrors ===
+          processProgress.downloaded
+        ) {
           isDownloading.value = false;
-        }
-        else{
+        } else {
           isDownloading.value = true;
         }
-        
-      }else{
-        console.log(`Data is ready at: ${eventDataObj.result_path}`)
-        isFetching.value = false;
+      } else {
         const response = await axios(`/${eventDataObj.result_path}`, {
           responseType: "blob",
           onDownloadProgress: ({ progress, total }) => {
@@ -97,10 +96,9 @@ wsUrl += "//" + loc.host;
         const file = URL.createObjectURL(response.data);
         location.assign(file);
         URL.revokeObjectURL(file);
-
+        isFetching.value = false;
         fileDownload.progress = 0;
         fileDownload.total = 0;
-        console.log(eventDataObj.result_path);
       }
     };
   } catch (error) {
@@ -110,9 +108,8 @@ wsUrl += "//" + loc.host;
         message: "An error occured when creating mappack.",
         error: true,
       });
-    }
-    else{
-      console.error(error)
+    } else {
+      console.error(error);
     }
   } finally {
   }
@@ -139,9 +136,21 @@ wsUrl += "//" + loc.host;
       class="grid gap-2 justify-items-center bg-surface-container rounded overflow-hidden"
     >
       <div class="p-2 grid justify-items-center gap-2">
-        <div class="text-surface-on flex flex-row"><p>Creating Mappack</p></div>
-        <p class="text-surface-on flex flex-row gap-2">Gathering {{gathered}}/{{beatmaps}}<Spinner v-if="isGathering"/></p>
-        <p class="text-surface-on flex flex-row gap-2">Downloading {{downloaded}}/{{beatmaps}}<Spinner v-if="isDownloading"/></p>
+        <div class="text-surface-on flex flex-row">
+          <p>Creating Mappack</p>
+        </div>
+        <p class="text-surface-on flex flex-row gap-2">
+          Gathering {{ processProgress.gathered }}/{{
+            processProgress.beatmaps
+          }}
+          <Spinner v-if="isGathering" />
+        </p>
+        <p class="text-surface-on flex flex-row gap-2">
+          Downloading {{ processProgress.downloaded }}/{{
+            processProgress.beatmaps
+          }}
+          <Spinner v-if="isDownloading" />
+        </p>
       </div>
 
       <div

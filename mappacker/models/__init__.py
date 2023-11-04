@@ -20,6 +20,6 @@ class Job(pydantic.BaseModel, validate_assignment=True):
 
     @model_validator(mode="after")
     def post_progress(self):
-        future = self.job_queue.put(self.model_dump_json())
-        asyncio.gather(future)
+        coro = self.job_queue.put(self.model_dump_json())
+        asyncio.gather(coro)
         return self
