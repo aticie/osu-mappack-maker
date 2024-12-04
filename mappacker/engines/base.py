@@ -3,7 +3,7 @@ import logging
 from itertools import cycle
 from typing import Union, AsyncGenerator
 
-from mappacker.models import Job
+from mappacker.models.job import Job
 from mappacker.osu_api import *
 from mappacker.osu_api.base_api import BaseAPI
 from mappacker.osu_models.chimu import ChimuBeatmapset

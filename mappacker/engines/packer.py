@@ -2,7 +2,7 @@ import os
 import zipfile
 from typing import List, Union, AsyncGenerator
 
-from mappacker.models import Job
+from mappacker.models.job import Job
 
 
 class BeatmapPacker:

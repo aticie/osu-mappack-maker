@@ -15,7 +15,7 @@ class BeatmapDownloader(BaseBeatmapEngine):
         for api in [selected_api, *remaining_apis]:
             async with api.SEMAPHORE:
                 try:
-                    filepath = await api.download_beatmapset(beatmapset=task_arg, job_id=self.job.job_hash)
+                    filepath = await api.download_beatmapset(beatmapset=task_arg, job_id=self.job.job_id)
                     self.job.downloaded += 1
                     return filepath
                 except:
