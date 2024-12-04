@@ -1,7 +1,7 @@
 import asyncio
 import logging
 from itertools import cycle
-from typing import Iterable, Union, AsyncGenerator, Any
+from typing import Union, AsyncGenerator
 
 from mappacker.models import Job
 from mappacker.osu_api import *
@@ -12,9 +12,9 @@ from mappacker.osu_models.nerinyan import NerinyanBeatmapset
 logger = logging.getLogger(__name__)
 
 
-class AbstractBeatmapEngine:
+class BaseBeatmapEngine:
     def __init__(self, job: Job):
-        self.apis = [OsuAPI(), DirectAPI(), ChimuAPI(), NerinyanAPI(), AkatsukiAPI(), GatariAPI(), RippleAPI(),
+        self.apis = [OsuAPI(), DirectAPI(), NerinyanAPI(), AkatsukiAPI(), GatariAPI(), RippleAPI(),
                      CatboyAPI()]
         self.job = job
 
