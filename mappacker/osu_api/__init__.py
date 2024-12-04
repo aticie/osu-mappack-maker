@@ -1,6 +1,5 @@
 from mappacker.osu_api.akatsuki import AkatsukiAPI
 from mappacker.osu_api.catboy import CatboyAPI
-from mappacker.osu_api.chimu import ChimuAPI
 from mappacker.osu_api.direct import DirectAPI
 from mappacker.osu_api.gatari import GatariAPI
 from mappacker.osu_api.nerinyan import NerinyanAPI

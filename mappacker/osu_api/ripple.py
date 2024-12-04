@@ -18,5 +18,5 @@ class RippleAPI(BaseAPI):
 
     async def download_beatmapset(self, beatmapset: Union[NerinyanBeatmapset, ChimuBeatmapset], job_id: int) -> str:
         if beatmapset.ranked <= 0:
-            raise aiohttp.ClientError()
+            raise aiohttp.ClientError("Unranked beatmaps can't be downloaded from Ripple.")
         return await super(RippleAPI, self).download_beatmapset(beatmapset=beatmapset, job_id=job_id)

@@ -9,11 +9,13 @@ import { ref, reactive, computed } from "vue";
 import axios from "axios";
 
 const isFetching = ref(false);
+const isInQueue = ref(false);
 const isGathering = ref(false);
 const isDownloading = ref(false);
 const ids = ref("");
 const job_id = ref();
 const processProgress = reactive({
+  queue: -1,
   beatmaps: 0,
   gathered: 0,
   downloaded: 0,
@@ -36,8 +38,6 @@ const idsList = computed(() =>
 
 const download = async () => {
   if (!ids.value || idsList.value.length === 0) return;
-  isFetching.value = true;
-
   try {
     const response = await axios("/api/make_pool", {
       responseType: "text",
@@ -65,10 +65,45 @@ const download = async () => {
           error: true,
         });
       }
-      if (!eventDataObj.completed) {
-        processProgress.beatmaps = eventDataObj.beatmaps;
+      if (eventDataObj.job_status === 'Completed'){
+        const response = await axios(`/${eventDataObj.result_path}`, {
+          responseType: "blob",
+          onDownloadProgress: ({ progress, total }) => {
+            if (!progress || !total) return;
+
+            fileDownload.progress = progress * 100;
+            fileDownload.total = total / (1000 * 1000);
+          },
+        });
+        const file = URL.createObjectURL(response.data);
+        const a = document.createElement('a');
+        a.href = file;
+        a.download = `${eventDataObj.job_id}.zip`;
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        URL.revokeObjectURL(file);
+        isFetching.value = false;
+        fileDownload.progress = 0;
+        fileDownload.total = 0;
+      }
+      else if (eventDataObj.job_status === 'Failed') {
+        isFetching.value = false;
+        throw new Error(eventDataObj.errors);
+      }
+      else {
+        processProgress.beatmaps = eventDataObj.num_beatmaps;
         processProgress.gathered = eventDataObj.gathered;
         processProgress.downloaded = eventDataObj.downloaded;
+
+        if (eventDataObj.job_status === 'Queued') {
+          processProgress.queue = eventDataObj.queue_position;
+          isInQueue.value = true;
+        }
+        else{
+          isFetching.value = true;
+          isInQueue.value = false;
+        }
 
         if (processProgress.beatmaps - DlErrors === processProgress.gathered) {
           isGathering.value = false;
@@ -83,22 +118,6 @@ const download = async () => {
         } else {
           isDownloading.value = true;
         }
-      } else {
-        const response = await axios(`/${eventDataObj.result_path}`, {
-          responseType: "blob",
-          onDownloadProgress: ({ progress, total }) => {
-            if (!progress || !total) return;
-
-            fileDownload.progress = progress * 100;
-            fileDownload.total = total / (1000 * 1000);
-          },
-        });
-        const file = URL.createObjectURL(response.data);
-        location.assign(file);
-        URL.revokeObjectURL(file);
-        isFetching.value = false;
-        fileDownload.progress = 0;
-        fileDownload.total = 0;
       }
     };
   } catch (error) {
@@ -130,7 +149,14 @@ const download = async () => {
       v-model="ids"
       label="Paste the beatmap ids and click to download mappack."
     />
-
+    <div
+      v-if="isInQueue"
+      class="grid gap-2 justify-items-center bg-surface-container rounded overflow-hidden"
+    >
+      <p class="text-surface-on flex flex-row gap-2">
+        You are in queue. Waiting for this many people: {{processProgress.queue}}
+      </p>
+    </div>
     <div
       v-if="isFetching"
       class="grid gap-2 justify-items-center bg-surface-container rounded overflow-hidden"

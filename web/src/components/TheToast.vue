@@ -20,7 +20,7 @@ onMounted(() => {
     setTimeout(() => {
       let found = notifications.value.findIndex((x) => x.id === id);
       notifications.value.splice(found, 1);
-    }, 5000);
+    }, 15000);
   });
 });
 

@@ -46,10 +46,14 @@ class OsuAPI(BaseAPI):
                 try:
                     if r.status == 200:
                         resp = await r.json()
-                    else:
+                    elif r.status == 429:
                         resp = (await r.read()).decode()
                         logger.debug(f"We are rate-limited by osu!. Setting self.rate_limited=True. Response: {resp}")
                         self.rate_limited = True
+                        return
+                    else:
+                        resp = (await r.read()).decode()
+                        logger.warning(f"Error on osu! auth. Response: {resp}")
                         return
                 except (json.JSONDecodeError, ContentTypeError):
                     resp = (await r.read()).decode()

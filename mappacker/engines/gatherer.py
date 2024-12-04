@@ -1,7 +1,7 @@
 import logging
 from typing import Union
 
-from mappacker.engines.abstract import AbstractBeatmapEngine
+from mappacker.engines.base import BaseBeatmapEngine
 from mappacker.osu_api import *
 from mappacker.osu_api.base_api import BaseAPI
 from mappacker.osu_models.chimu import ChimuBeatmapset
@@ -10,7 +10,7 @@ from mappacker.osu_models.nerinyan import NerinyanBeatmapset
 logger = logging.getLogger(__name__)
 
 
-class BeatmapGatherer(AbstractBeatmapEngine):
+class BeatmapGatherer(BaseBeatmapEngine):
     """Gathers beatmap information from beatmap ids."""
 
     async def gather_task(self, task_arg: Union[str, int], selected_api: BaseAPI) -> Union[
