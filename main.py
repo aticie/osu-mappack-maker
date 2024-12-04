@@ -50,6 +50,7 @@ async def list_to_async_gen(in_list: Iterable[Any]) -> AsyncGenerator[Any, None]
 async def run(job: Job):
     job_id = job.job_id
     job.job_status = JobStatus.IN_PROGRESS
+    queued_job_ids.remove(job.job_id)
     logger.info(f"Starting task on job #{job_id}")
     try:
         gatherer = BeatmapGatherer(job)
@@ -76,7 +77,6 @@ async def job_worker():
         jobs[job.job_id] = job
         await run(job)
         global_job_queue.task_done()
-        queued_job_ids.remove(job.job_id)
 
 
 @api_app.websocket("/jobs/{job_id}")
