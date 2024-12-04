@@ -1,7 +1,6 @@
 import asyncio
 import gc
 import hashlib
-import json
 import logging.config
 import os
 from asyncio import Queue, Task

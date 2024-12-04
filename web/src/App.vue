@@ -98,7 +98,7 @@ const download = async () => {
 
         if (eventDataObj.job_status === 'Queued') {
           processProgress.queue = eventDataObj.queue_position;
-          isInQueue.value = false;
+          isInQueue.value = true;
         }
         else{
           isFetching.value = true;
